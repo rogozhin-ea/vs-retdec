@@ -1,12 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
+const child_process = __importStar(require("child_process"));
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-    let k_key = "", a_key = "", path = "", o_key = "", f_key = "", agressive_opts_key = "", keep_all_brackets_key = "", keep_lib_funcs_key = "", no_debug_comments_key = "", no_opts_key = "", no_symbolic_names_key = "", no_var_renaming_key = "", strict_fpu_semantics_key = "", cleanup_key = "", fileinfo_verbose_key = "", no_config_key = "", config_key = "";
+    let filename = "", k_key = "", a_key = "", path = "", o_key = "", f_key = "", agressive_opts_key = "", keep_all_brackets_key = "", keep_lib_funcs_key = "", no_debug_comments_key = "", no_opts_key = "", no_symbolic_names_key = "", no_var_renaming_key = "", strict_fpu_semantics_key = "", cleanup_key = "", fileinfo_verbose_key = "", no_config_key = "", config_key = "";
     const vscode = require('vscode');
+    filename = " D:\\1\\VS-RetDec\\test\\LR2_RogozhinEA_201-331.exe";
     context.subscriptions.push(vscode.commands.registerCommand('vs-retdec.run', () => {
         const keepValue = vscode.workspace.getConfiguration().get('vs-retdec.keep-unreachable-funcs');
         if (keepValue == true) {
@@ -17,11 +42,11 @@ function activate(context) {
             a_key = " -a " + archValue;
         }
         const pathValue = vscode.workspace.getConfiguration().get('vs-retdec.chooseRetDec');
-        if (pathValue != "default/path/to/file") {
+        if ((pathValue != "default/path/to/file") && (pathValue != "")) {
             path = pathValue;
         }
         const outputValue = vscode.workspace.getConfiguration().get('vs-retdec.output');
-        if (outputValue != "default/path/to/file") {
+        if ((outputValue != "default/path/to/file") && (outputValue != "")) {
             o_key = " -o " + outputValue;
         }
         const output_formatValue = vscode.workspace.getConfiguration().get('vs-retdec.output_format');
@@ -32,7 +57,7 @@ function activate(context) {
         const agressiveOptsValue = vscode.workspace.getConfiguration().get('vs-retdec.backend-agressive-opts');
         if (agressiveOptsValue == true) {
             //agressive_opts_key
-            agressive_opts_key = " --backend-agressive-opts";
+            agressive_opts_key = " --backend-aggressive-opts";
         }
         //backend-keep-all-brackets
         const keepBracketsValue = vscode.workspace.getConfiguration().get('vs-retdec.backend-keep-all-brackets');
@@ -94,13 +119,35 @@ function activate(context) {
         if (noConfigValue == false) {
             no_config_key = " --no-config";
         }
-        if ((noConfigValue == true) && (configValue != "default/path/to/json/")) {
+        if ((noConfigValue == true) && (configValue != "default/path/to/json/") && (configValue != "")) {
             config_key = " --config " + configValue;
         }
-        console.log(path + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key);
+        //console.log(path + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key);
+        const command = "python " + path + filename + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key;
+        child_process.exec(command, (error) => {
+            if (error) {
+                vscode.window.showErrorMessage("Command failed with error: " + error.message);
+            }
+            else {
+                vscode.window.showInformationMessage("Command completed successfully!");
+                let filesToOpen = [
+                    vscode.Uri.file(outputValue),
+                    vscode.Uri.file(outputValue.slice(0, -3) + "dsm"),
+                ];
+                vscode.window.showTextDocument(filesToOpen[0], { preview: false }).then((editor) => {
+                    filesToOpen.shift();
+                    filesToOpen.forEach(file => {
+                        vscode.workspace.openTextDocument(file).then((doc) => {
+                            vscode.window.showTextDocument(doc, { preview: false });
+                        });
+                    });
+                });
+            }
+        });
     }));
 }
 exports.activate = activate;
+;
 function deactivate() { }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

@@ -124,6 +124,23 @@
         "command": "vs-retdec.run",
         "category": "VS-RetDec",
         "title": "Run"
+      },
+      {
+        "command": "vs-retdec.openExeFile",
+        "category": "VS-RetDec",
+        "title": "Open Exe File"
+    }
+    ],
+    "customEditors": [
+      {
+        "viewType": "vs-retdec.open",
+        "displayName": "VS-RetDec",
+        "selector": [
+          {
+            "filenamePattern": "*.exe"
+          }
+        ],
+        "priority": "option"
       }
     ]
   },

@@ -1,4 +1,6 @@
+import { debug } from 'console';
 import * as vscode from 'vscode';
+import * as child_process from 'child_process';
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -6,8 +8,9 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	let k_key = "", a_key="", path="", o_key="", f_key="", agressive_opts_key="", keep_all_brackets_key="", keep_lib_funcs_key="", no_debug_comments_key="", no_opts_key="", no_symbolic_names_key="", no_var_renaming_key="", strict_fpu_semantics_key="", cleanup_key="", fileinfo_verbose_key="", no_config_key="", config_key="";
+	let filename="", k_key = "", a_key="", path="", o_key="", f_key="", agressive_opts_key="", keep_all_brackets_key="", keep_lib_funcs_key="", no_debug_comments_key="", no_opts_key="", no_symbolic_names_key="", no_var_renaming_key="", strict_fpu_semantics_key="", cleanup_key="", fileinfo_verbose_key="", no_config_key="", config_key="";
 	const vscode = require('vscode');
+	filename=" D:\\1\\VS-RetDec\\test\\LR2_RogozhinEA_201-331.exe";
 	
 	context.subscriptions.push(vscode.commands.registerCommand('vs-retdec.run', () => {
 		const keepValue = vscode.workspace.getConfiguration().get('vs-retdec.keep-unreachable-funcs');
@@ -23,13 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		const pathValue = vscode.workspace.getConfiguration().get('vs-retdec.chooseRetDec');
-		if(pathValue!="default/path/to/file")
+		if((pathValue!="default/path/to/file")&&(pathValue!=""))
 		{
 			path=pathValue;
 		}
 
 		const outputValue = vscode.workspace.getConfiguration().get('vs-retdec.output');
-		if(outputValue!="default/path/to/file")
+		if((outputValue!="default/path/to/file")&&(outputValue!=""))
 		{
 			o_key=" -o " + outputValue;
 		}
@@ -45,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if(agressiveOptsValue==true)
 		{
 			//agressive_opts_key
-			agressive_opts_key=" --backend-agressive-opts";
+			agressive_opts_key=" --backend-aggressive-opts";
 		}
 
 		//backend-keep-all-brackets
@@ -127,12 +130,36 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			no_config_key=" --no-config";
 		}
-		if((noConfigValue==true) && (configValue!="default/path/to/json/"))
+		if((noConfigValue==true) && (configValue!="default/path/to/json/") && (configValue!=""))
 		{
 			config_key=" --config " + configValue;
 		}
+		
 
-		console.log(path + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key);
-	}));
-	}
+		//console.log(path + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key);
+		const command = "python " + path + filename + k_key + a_key + o_key + f_key + agressive_opts_key + keep_all_brackets_key + keep_lib_funcs_key + no_debug_comments_key + no_opts_key + no_symbolic_names_key + no_var_renaming_key + strict_fpu_semantics_key + cleanup_key + fileinfo_verbose_key + no_config_key + config_key;
+
+		child_process.exec(command, (error) => {
+			if (error) {
+				vscode.window.showErrorMessage("Command failed with error: " + error.message);
+			}
+			else {
+				vscode.window.showInformationMessage("Command completed successfully!");
+				let filesToOpen = [
+					vscode.Uri.file(outputValue),
+					vscode.Uri.file(outputValue.slice(0, -3) + "dsm"),
+					];
+					
+					vscode.window.showTextDocument(filesToOpen[0], { preview: false }).then((editor: any) => {
+						filesToOpen.shift();
+						 filesToOpen.forEach(file => {
+							vscode.workspace.openTextDocument(file).then((doc: any) => {
+								vscode.window.showTextDocument(doc, { preview: false });
+						});
+					});
+				});
+			}
+		});  	
+}))};
+
 export function deactivate() {}
